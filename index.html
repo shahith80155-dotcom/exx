@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ExpenseTrack – Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">💰 ExpenseTrack</div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Dashboard</a></li>
+      <li><a href="add-expense.html">Add Expense</a></li>
+      <li><a href="expenses.html">Expenses</a></li>
+      <li><a href="budget.html">Budget</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Your financial snapshot from saved expenses.</p>
+
+    <!-- SUMMARY CARDS -->
+    <div class="card-grid">
+      <div class="card card-green">
+        <span class="card-icon">💵</span>
+        <h3>Total Income</h3>
+        <p class="card-amount" id="cardIncome">₹0</p>
+      </div>
+      <div class="card card-red">
+        <span class="card-icon">🛒</span>
+        <h3>Total Expenses</h3>
+        <p class="card-amount" id="cardSpent">₹0</p>
+      </div>
+      <div class="card card-blue">
+        <span class="card-icon">💼</span>
+        <h3>Balance</h3>
+        <p class="card-amount" id="cardBalance">₹0</p>
+      </div>
+      <div class="card card-yellow">
+        <span class="card-icon">📊</span>
+        <h3>Transactions</h3>
+        <p class="card-amount" id="cardCount">0</p>
+      </div>
+    </div>
+
+    <!-- RECENT TRANSACTIONS -->
+    <section class="section">
+      <h2>Recent Transactions</h2>
+
+      <div class="empty-state" id="emptyState">
+        <p>📭 No transactions yet.</p>
+        <a href="add-expense.html" class="btn btn-primary">+ Add your first expense</a>
+      </div>
+
+      <div id="tableWrap" style="display:none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody id="recentBody"></tbody>
+        </table>
+        <a href="expenses.html" class="btn btn-outline">View All Expenses →</a>
+      </div>
+    </section>
+
+    <!-- CATEGORY BAR CHART -->
+    <section class="section">
+      <h2>Spending by Category</h2>
+      <div id="chartWrap">
+        <p class="text-muted" id="noChart">No expense data to show yet.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ExpenseTrack — HTML + CSS + localStorage</p>
+  </footer>
+
+  <script>
+    const categoryClass = {
+      'Food':'badge-food','Transport':'badge-trans','Utilities':'badge-util',
+      'Entertainment':'badge-ent','Health':'badge-health','Education':'badge-edu',
+      'Shopping':'badge-shop','Other':'badge-other','Income':'badge-income'
+    };
+
+    const catColors = {
+      'Food':'var(--green)','Transport':'var(--yellow)','Utilities':'var(--blue)',
+      'Entertainment':'var(--red)','Health':'#f43f5e','Education':'var(--purple)',
+      'Shopping':'#0ea5e9','Other':'#94a3b8'
+    };
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function run() {
+      const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+
+      // ── Summary cards ──
+      let income = 0, spent = 0;
+      expenses.forEach(e => { if (e.type === 'income') income += e.amount; else spent += e.amount; });
+      const balance = income - spent;
+
+      document.getElementById('cardIncome').textContent  = '₹' + income.toLocaleString('en-IN');
+      document.getElementById('cardSpent').textContent   = '₹' + spent.toLocaleString('en-IN');
+      document.getElementById('cardCount').textContent   = expenses.length;
+      const balEl = document.getElementById('cardBalance');
+      balEl.textContent = '₹' + balance.toLocaleString('en-IN');
+      balEl.style.color = balance >= 0 ? 'var(--green)' : 'var(--red)';
+
+      // ── Recent transactions (latest 5) ──
+      const emptyState = document.getElementById('emptyState');
+      const tableWrap  = document.getElementById('tableWrap');
+
+      if (expenses.length === 0) {
+        emptyState.style.display = 'block';
+        tableWrap.style.display  = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        tableWrap.style.display  = 'block';
+
+        const sorted = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+        const recent = sorted.slice(0, 5);
+        let rows = '';
+        recent.forEach(exp => {
+          const badge  = categoryClass[exp.category] || 'badge-other';
+          const amount = exp.type === 'income'
+            ? `<span class="amount-positive">+₹${exp.amount.toLocaleString('en-IN')}</span>`
+            : `<span class="amount-negative">-₹${exp.amount.toLocaleString('en-IN')}</span>`;
+          rows += `<tr>
+            <td>${formatDate(exp.date)}</td>
+            <td>${exp.desc}</td>
+            <td><span class="badge ${badge}">${exp.category}</span></td>
+            <td>${amount}</td>
+          </tr>`;
+        });
+        document.getElementById('recentBody').innerHTML = rows;
+      }
+
+      // ── Category bar chart ──
+      const onlyExpenses = expenses.filter(e => e.type === 'expense');
+      if (onlyExpenses.length === 0) {
+        document.getElementById('noChart').style.display = 'block';
+        return;
+      }
+      document.getElementById('noChart').style.display = 'none';
+
+      // Sum spending per category
+      const catTotals = {};
+      onlyExpenses.forEach(e => { catTotals[e.category] = (catTotals[e.category] || 0) + e.amount; });
+      const maxVal = Math.max(...Object.values(catTotals));
+
+      let chartHTML = '<div class="bar-chart">';
+      for (const [cat, total] of Object.entries(catTotals)) {
+        const pct   = Math.round((total / maxVal) * 100);
+        const color = catColors[cat] || '#94a3b8';
+        chartHTML += `
+          <div class="bar-row">
+            <span class="bar-label">${cat}</span>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${pct}%;background:${color}"></div>
+            </div>
+            <span class="bar-value">₹${total.toLocaleString('en-IN')}</span>
+          </div>`;
+      }
+      chartHTML += '</div>';
+      document.getElementById('chartWrap').innerHTML = chartHTML;
+    }
+
+    run();
+  </script>
+
+</body>
+</html>

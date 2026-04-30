@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ExpenseTrack – Add Expense</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">💰 ExpenseTrack</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="add-expense.html" class="active">Add Expense</a></li>
+      <li><a href="expenses.html">Expenses</a></li>
+      <li><a href="budget.html">Budget</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h1 class="page-title">Add Expense</h1>
+    <p class="page-subtitle">Fill in the details to record a new transaction.</p>
+
+    <div class="form-card">
+      <form class="expense-form" id="expenseForm">
+
+        <!-- Type -->
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <div class="toggle-group">
+            <label class="toggle-option">
+              <input type="radio" name="type" value="expense" checked />
+              <span class="toggle-btn">💸 Expense</span>
+            </label>
+            <label class="toggle-option">
+              <input type="radio" name="type" value="income" />
+              <span class="toggle-btn">💵 Income</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label" for="desc">Description <span class="required">*</span></label>
+          <input class="form-input" type="text" id="desc" placeholder="e.g. Grocery shopping" required />
+        </div>
+
+        <!-- Amount -->
+        <div class="form-group">
+          <label class="form-label" for="amount">Amount (₹) <span class="required">*</span></label>
+          <input class="form-input" type="number" id="amount" placeholder="e.g. 500" min="1" required />
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <label class="form-label" for="category">Category <span class="required">*</span></label>
+          <select class="form-input" id="category" required>
+            <option value="">-- Select Category --</option>
+            <option value="Food">🍔 Food</option>
+            <option value="Transport">🚌 Transport</option>
+            <option value="Utilities">💡 Utilities</option>
+            <option value="Entertainment">🎬 Entertainment</option>
+            <option value="Health">💊 Health</option>
+            <option value="Education">📚 Education</option>
+            <option value="Shopping">🛍 Shopping</option>
+            <option value="Other">🗂 Other</option>
+          </select>
+        </div>
+
+        <!-- Date -->
+        <div class="form-group">
+          <label class="form-label" for="date">Date <span class="required">*</span></label>
+          <input class="form-input" type="date" id="date" required />
+        </div>
+
+        <!-- Note -->
+        <div class="form-group">
+          <label class="form-label" for="note">Note (Optional)</label>
+          <textarea class="form-input form-textarea" id="note" placeholder="Any extra details..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">✅ Save Expense</button>
+          <button type="reset" class="btn btn-outline">🔄 Reset</button>
+        </div>
+      </form>
+
+      <div class="success-msg" id="successMsg">
+        ✅ Saved successfully! <a href="expenses.html">View all expenses →</a>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h3>💡 How it works</h3>
+      <ul>
+        <li>Data is saved in your browser using <strong>localStorage</strong>.</li>
+        <li>Go to <a href="expenses.html">Expenses page</a> to view and delete entries.</li>
+        <li>Data stays even if you close the tab — it persists in the browser.</li>
+        <li>Clearing browser data will erase saved expenses.</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ExpenseTrack — HTML + CSS + localStorage</p>
+  </footer>
+
+  <script>
+    // ── Set today as default date ──────────────────────────
+    document.getElementById('date').valueAsDate = new Date();
+
+    // ── Handle form submit ─────────────────────────────────
+    document.getElementById('expenseForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // 1. Read all form values
+      const type     = document.querySelector('input[name="type"]:checked').value;
+      const desc     = document.getElementById('desc').value.trim();
+      const amount   = parseFloat(document.getElementById('amount').value);
+      const category = document.getElementById('category').value;
+      const date     = document.getElementById('date').value;
+      const note     = document.getElementById('note').value.trim();
+
+      // 2. Build an object for this expense
+      //    Date.now() gives a unique number (e.g. 1714480000000) used as ID
+      const expense = { id: Date.now(), type, desc, amount, category, date, note };
+
+      // 3. Load existing list from localStorage (or start with empty array)
+      const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+
+      // 4. Add new expense to the list
+      expenses.push(expense);
+
+      // 5. Save updated list back to localStorage as a JSON string
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+
+      // 6. Show success banner, hide after 4s
+      const msg = document.getElementById('successMsg');
+      msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 4000);
+
+      // 7. Reset form, re-set date
+      this.reset();
+      document.getElementById('date').valueAsDate = new Date();
+    });
+  </script>
+
+</body>
+</html>

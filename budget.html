@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ExpenseTrack – Budget</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="logo">💰 ExpenseTrack</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="add-expense.html">Add Expense</a></li>
+      <li><a href="expenses.html">Expenses</a></li>
+      <li><a href="budget.html" class="active">Budget</a></li>
+    </ul>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="container">
+    <h1 class="page-title">Budget Planner</h1>
+    <p class="page-subtitle">Set limits for each category and track how much you've used.</p>
+
+    <!-- OVERALL BUDGET CARD -->
+    <div class="budget-overview">
+      <div class="budget-stat">
+        <p>Monthly Budget</p>
+        <h2>₹30,000</h2>
+      </div>
+      <div class="budget-stat">
+        <p>Spent So Far</p>
+        <h2 class="text-red">₹18,350</h2>
+      </div>
+      <div class="budget-stat">
+        <p>Remaining</p>
+        <h2 class="text-green">₹11,650</h2>
+      </div>
+      <div class="budget-stat">
+        <p>Used</p>
+        <h2 class="text-yellow">61%</h2>
+      </div>
+    </div>
+
+    <!-- OVERALL PROGRESS BAR -->
+    <div class="overall-progress">
+      <div class="progress-label">
+        <span>Overall Budget Used</span>
+        <span>₹18,350 / ₹30,000</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill progress-warn" style="width: 61%;"></div>
+      </div>
+    </div>
+
+    <!-- CATEGORY BUDGETS -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Category Budgets</h2>
+        <button class="btn btn-primary btn-sm">+ Set Budget</button>
+      </div>
+
+      <div class="budget-cards">
+
+        <!-- Food -->
+        <div class="budget-card">
+          <div class="budget-card-header">
+            <span>🍔 Food</span>
+            <span class="badge badge-food">Active</span>
+          </div>
+          <div class="budget-amounts">
+            <span>Spent: <strong class="text-red">₹5,500</strong></span>
+            <span>Budget: <strong>₹8,000</strong></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill progress-ok" style="width: 69%;"></div>
+          </div>
+          <p class="budget-remaining">₹2,500 remaining (69% used)</p>
+        </div>
+
+        <!-- Transport -->
+        <div class="budget-card">
+          <div class="budget-card-header">
+            <span>🚌 Transport</span>
+            <span class="badge badge-trans">Active</span>
+          </div>
+          <div class="budget-amounts">
+            <span>Spent: <strong class="text-red">₹2,000</strong></span>
+            <span>Budget: <strong>₹3,000</strong></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill progress-ok" style="width: 67%;"></div>
+          </div>
+          <p class="budget-remaining">₹1,000 remaining (67% used)</p>
+        </div>
+
+        <!-- Utilities -->
+        <div class="budget-card">
+          <div class="budget-card-header">
+            <span>💡 Utilities</span>
+            <span class="badge badge-util">Active</span>
+          </div>
+          <div class="budget-amounts">
+            <span>Spent: <strong class="text-red">₹3,500</strong></span>
+            <span>Budget: <strong>₹4,000</strong></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill progress-warn" style="width: 88%;"></div>
+          </div>
+          <p class="budget-remaining text-yellow">₹500 remaining (88% used) ⚠️</p>
+        </div>
+
+        <!-- Entertainment -->
+        <div class="budget-card">
+          <div class="budget-card-header">
+            <span>🎬 Entertainment</span>
+            <span class="badge badge-ent">Active</span>
+          </div>
+          <div class="budget-amounts">
+            <span>Spent: <strong class="text-red">₹1,500</strong></span>
+            <span>Budget: <strong>₹2,000</strong></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill progress-ok" style="width: 75%;"></div>
+          </div>
+          <p class="budget-remaining">₹500 remaining (75% used)</p>
+        </div>
+
+        <!-- Health -->
+        <div class="budget-card">
+          <div class="budget-card-header">
+            <span>💊 Health</span>
+            <span class="badge badge-health">Active</span>
+          </div>
+          <div class="budget-amounts">
+            <span>Spent: <strong class="text-red">₹500</strong></span>
+            <span>Budget: <strong>₹2,000</strong></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill progress-ok" style="width: 25%;"></div>
+          </div>
+          <p class="budget-remaining">₹1,500 remaining (25% used) ✅</p>
+        </div>
+
+        <!-- Shopping - Over budget -->
+        <div class="budget-card budget-over">
+          <div class="budget-card-header">
+            <span>🛍 Shopping</span>
+            <span class="badge badge-danger">Over Budget!</span>
+          </div>
+          <div class="budget-amounts">
+            <span>Spent: <strong class="text-red">₹3,500</strong></span>
+            <span>Budget: <strong>₹3,000</strong></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill progress-over" style="width: 100%;"></div>
+          </div>
+          <p class="budget-remaining text-red">₹500 over budget! ❌</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TIPS -->
+    <div class="info-box">
+      <h3>📌 Budget Rules (50/30/20 Rule)</h3>
+      <ul>
+        <li><strong>50%</strong> — Needs (rent, food, utilities): ₹22,500</li>
+        <li><strong>30%</strong> — Wants (entertainment, shopping): ₹13,500</li>
+        <li><strong>20%</strong> — Savings & investments: ₹9,000</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ExpenseTrack — Built with HTML & CSS only</p>
+  </footer>
+
+</body>
+</html>

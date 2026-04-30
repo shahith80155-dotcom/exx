@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ExpenseTrack – Expenses</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">💰 ExpenseTrack</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="add-expense.html">Add Expense</a></li>
+      <li><a href="expenses.html" class="active">Expenses</a></li>
+      <li><a href="budget.html">Budget</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h1 class="page-title">All Expenses</h1>
+    <p class="page-subtitle">All transactions saved in your browser.</p>
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-strip">
+      <span>Total Income: <strong class="text-green" id="totalIncome">₹0</strong></span>
+      <span>Total Spent: <strong class="text-red" id="totalSpent">₹0</strong></span>
+      <span>Balance: <strong id="balance">₹0</strong></span>
+      <span>Transactions: <strong id="count">0</strong></span>
+    </div>
+
+    <!-- TABLE -->
+    <section class="section">
+      <div class="section-header">
+        <h2>Transaction List</h2>
+        <button class="btn btn-outline btn-sm" id="clearAllBtn" onclick="clearAll()">🗑 Clear All</button>
+      </div>
+
+      <!-- Empty state (shown when no data) -->
+      <div class="empty-state" id="emptyState">
+        <p>📭 No expenses yet.</p>
+        <a href="add-expense.html" class="btn btn-primary">+ Add your first expense</a>
+      </div>
+
+      <!-- Table (shown when there is data) -->
+      <div id="tableWrap" style="display:none;">
+        <table class="table" id="expenseTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <a href="add-expense.html" class="btn btn-primary">+ Add New Expense</a>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ExpenseTrack — HTML + CSS + localStorage</p>
+  </footer>
+
+  <script>
+    // ── Badge CSS class per category ───────────────────────
+    const categoryClass = {
+      'Food':          'badge-food',
+      'Transport':     'badge-trans',
+      'Utilities':     'badge-util',
+      'Entertainment': 'badge-ent',
+      'Health':        'badge-health',
+      'Education':     'badge-edu',
+      'Shopping':      'badge-shop',
+      'Other':         'badge-other',
+      'Income':        'badge-income'
+    };
+
+    // ── Format date nicely: "2026-04-28" → "28 Apr 2026" ──
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    // ── Load and render all expenses ───────────────────────
+    function renderExpenses() {
+      // Get expenses array from localStorage
+      const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+
+      const tbody       = document.getElementById('tableBody');
+      const emptyState  = document.getElementById('emptyState');
+      const tableWrap   = document.getElementById('tableWrap');
+
+      // Show empty state if no data
+      if (expenses.length === 0) {
+        emptyState.style.display = 'block';
+        tableWrap.style.display  = 'none';
+        updateSummary(expenses);
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tableWrap.style.display  = 'block';
+
+      // Sort by date newest first
+      expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // Build table rows HTML
+      let rows = '';
+      expenses.forEach((exp, index) => {
+        const badgeClass = categoryClass[exp.category] || 'badge-other';
+        const typeTag    = exp.type === 'income'
+          ? '<span class="type-tag type-inc">Income</span>'
+          : '<span class="type-tag type-exp">Expense</span>';
+        const amountStr  = exp.type === 'income'
+          ? `<span class="amount-positive">+₹${exp.amount.toLocaleString('en-IN')}</span>`
+          : `<span class="amount-negative">-₹${exp.amount.toLocaleString('en-IN')}</span>`;
+
+        rows += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${formatDate(exp.date)}</td>
+            <td>
+              <strong>${exp.desc}</strong>
+              ${exp.note ? `<br><small class="text-muted">${exp.note}</small>` : ''}
+            </td>
+            <td><span class="badge ${badgeClass}">${exp.category}</span></td>
+            <td>${typeTag}</td>
+            <td>${amountStr}</td>
+            <td>
+              <button class="link-danger btn-delete" onclick="deleteExpense(${exp.id})">Delete</button>
+            </td>
+          </tr>`;
+      });
+
+      tbody.innerHTML = rows;
+      updateSummary(expenses);
+    }
+
+    // ── Update summary strip ───────────────────────────────
+    function updateSummary(expenses) {
+      let income  = 0;
+      let spent   = 0;
+
+      expenses.forEach(exp => {
+        if (exp.type === 'income') income += exp.amount;
+        else                       spent  += exp.amount;
+      });
+
+      const balance = income - spent;
+
+      document.getElementById('totalIncome').textContent = '₹' + income.toLocaleString('en-IN');
+      document.getElementById('totalSpent').textContent  = '₹' + spent.toLocaleString('en-IN');
+      document.getElementById('count').textContent       = expenses.length;
+
+      const balEl = document.getElementById('balance');
+      balEl.textContent = '₹' + balance.toLocaleString('en-IN');
+      balEl.className   = balance >= 0 ? 'text-green' : 'text-red';
+    }
+
+    // ── Delete one expense by ID ───────────────────────────
+    function deleteExpense(id) {
+      if (!confirm('Delete this expense?')) return;
+
+      // Load list, filter out the one with matching id, save back
+      let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+      expenses = expenses.filter(exp => exp.id !== id);
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+
+      renderExpenses(); // re-render the table
+    }
+
+    // ── Clear ALL expenses ─────────────────────────────────
+    function clearAll() {
+      if (!confirm('Delete ALL expenses? This cannot be undone.')) return;
+      localStorage.removeItem('expenses');
+      renderExpenses();
+    }
+
+    // ── Run on page load ───────────────────────────────────
+    renderExpenses();
+  </script>
+
+</body>
+</html>
