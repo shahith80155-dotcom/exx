@@ -47,7 +47,7 @@ git init
 git add .
 git commit -m "Initial commit: expense tracker HTML CSS"
 
-git remote add origin https://github.com/YOUR_USERNAME/expense-tracker.git
+git remote add origin https://github.com/shahith80155-dotcom/exx
 git branch -M main
 git push -u origin main
 ```
