@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Expense Tracker</h2>
+
+<input id="desc" placeholder="Description">
+<input id="amount" type="number" placeholder="Amount">
+<select id="type">
+  <option value="expense">Expense</option>
+  <option value="income">Income</option>
+</select>
+
+<button onclick="add()">Add</button>
+
+<h3>Transactions</h3>
+<ul id="list"></ul>
+
+<h3>Total: ₹<span id="total">0</span></h3>
+
+<script>
+let data = JSON.parse(localStorage.getItem("data")) || [];
+
+function add() {
+  let item = {
+    desc: desc.value,
+    amount: Number(amount.value),
+    type: type.value
+  };
+
+  data.push(item);
+  localStorage.setItem("data", JSON.stringify(data));
+  show();
+}
+
+function show() {
+  let total = 0;
+  list.innerHTML = "";
+
+  data.forEach(d => {
+    if (d.type === "income") total += d.amount;
+    else total -= d.amount;
+
+    list.innerHTML += <li>${d.desc} - ₹${d.amount}</li>;
+  });
+
+  document.getElementById("total").innerText = total;
+}
+
+show();
+</script>
+
+</body>
+</html>
